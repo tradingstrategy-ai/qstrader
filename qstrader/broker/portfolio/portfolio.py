@@ -234,7 +234,7 @@ class Portfolio(object):
         # Form Portfolio history details
         direction = "LONG" if txn.direction > 0 else "SHORT"
         description = "%s %s %s %0.2f %s" % (
-            direction, txn.quantity, txn.asset.upper(),
+            direction, txn.quantity, txn.asset,
             txn.price, datetime.datetime.strftime(txn.dt, "%d/%m/%Y")
         )
         if direction == "LONG":
