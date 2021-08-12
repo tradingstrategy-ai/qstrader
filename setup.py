@@ -25,10 +25,10 @@ setup(
     packages=find_packages(exclude=("tests",)),
     include_package_data=True,
     install_requires=[
-        "Click==7.1.2",
-        "matplotlib==3.0.3",
-        "numpy==1.18.4",
-        "pandas==1.1.5",
-        "seaborn==0.10.1"
+        "Click>=7.1.2",
+        "matplotlib>=3.0.3",
+        "numpy>=1.18.4",
+        "pandas>=1.1.5",
+        "seaborn>=0.10.1"
     ]
 )
