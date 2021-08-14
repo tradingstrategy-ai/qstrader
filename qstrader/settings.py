@@ -14,6 +14,9 @@ LOGGING = {
 PRINT_EVENTS = True
 
 
+TIMEZONE = None
+
+
 def set_print_events(print_events=True):
     global PRINT_EVENTS
     PRINT_EVENTS = print_events

@@ -1,6 +1,7 @@
 import pandas as pd
 import pytz
 
+from qstrader import settings
 from qstrader.system.rebalance.rebalance import Rebalance
 
 
@@ -67,7 +68,7 @@ class DailyRebalance(Rebalance):
 
         rebalance_times = [
             pd.Timestamp(
-                "%s %s" % (date, self.market_time), tz=pytz.utc
+                "%s %s" % (date, self.market_time), tz=settings.TIMEZONE
             )
             for date in rebalance_dates
         ]

@@ -1,6 +1,7 @@
 import functools
 import os
 from typing import Dict
+import logging
 
 import pandas as pd
 
@@ -10,10 +11,15 @@ import pytz
 from qstrader import settings
 
 
+logger = logging.getLogger(__name__)
+
+
 class DataframeDailyBarDataSource(object):
     """Handle getting daily prices from a direct dataframe object."""
 
-    def __init__(self, asset_frames: Dict[str, pd.DataFrame], asset_type):
+    def __init__(self,
+                 asset_frames: Dict[str, pd.DataFrame],
+                 asset_type):
         self.asset_type = asset_type
         self.asset_bar_frames = asset_frames
         self.adjust_prices = False
@@ -82,11 +88,11 @@ class DataframeDailyBarDataSource(object):
             The converted DataFrames.
         """
         if settings.PRINT_EVENTS:
-            print("Adjusting pricing in CSV files...")
+            logger.debug("Adjusting pricing in CSV files...")
         asset_bid_ask_frames = {}
         for asset_symbol, bar_df in self.asset_bar_frames.items():
             if settings.PRINT_EVENTS:
-                print("Adjusting CSV file for symbol '%s'..." % asset_symbol)
+                logger.debug("Adjusting CSV file for symbol '%s'...", asset_symbol)
             asset_bid_ask_frames[asset_symbol] = \
                 self._convert_bar_frame_into_bid_ask_df(bar_df)
         return asset_bid_ask_frames
@@ -132,10 +138,16 @@ class DataframeDailyBarDataSource(object):
         `float`
             The ask price.
         """
+
+        assert type(dt.tz) != pytz.UTC, "Trying to get rid of timestamps in the processing as it is slowing down"
+
         bid_ask_df = self.asset_bid_ask_frames[asset]
         try:
-            ask = bid_ask_df.iloc[bid_ask_df.index.get_loc(dt, method='pad')]['Ask']
+            # This tries to interpolate missing data? It is veery slow
+            # ask = bid_ask_df.iloc[bid_ask_df.index.get_loc(dt, method='pad')]['Ask']
+            ask = bid_ask_df["Ask"][dt]
         except KeyError:  # Before start date
+            import ipdb ; ipdb.set_trace()
             return np.NaN
         return ask
 

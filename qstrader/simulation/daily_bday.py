@@ -4,6 +4,7 @@ import pandas as pd
 from pandas.tseries.offsets import BDay
 import pytz
 
+from qstrader import settings
 from qstrader.simulation.sim_engine import SimulationEngine
 from qstrader.simulation.event import SimulationEvent
 
@@ -81,27 +82,27 @@ class DailyBusinessDaySimulationEngine(SimulationEngine):
             if self.pre_market:
                 yield SimulationEvent(
                     pd.Timestamp(
-                        datetime.datetime(year, month, day), tz='UTC'
+                        datetime.datetime(year, month, day), tz=settings.TIMEZONE,
                     ), event_type="pre_market"
                 )
 
             yield SimulationEvent(
                 pd.Timestamp(
                     datetime.datetime(year, month, day, 14, 30),
-                    tz=pytz.utc
+                    tz=settings.TIMEZONE,
                 ), event_type="market_open"
             )
 
             yield SimulationEvent(
                 pd.Timestamp(
                     datetime.datetime(year, month, day, 21, 00),
-                    tz=pytz.utc
+                    tz=settings.TIMEZONE,
                 ), event_type="market_close"
             )
 
             if self.post_market:
                 yield SimulationEvent(
                     pd.Timestamp(
-                        datetime.datetime(year, month, day, 23, 59), tz='UTC'
+                        datetime.datetime(year, month, day, 23, 59), tz=settings.TIMEZONE,
                     ), event_type="post_market"
                 )

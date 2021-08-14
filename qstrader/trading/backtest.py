@@ -1,6 +1,8 @@
 import os
+import logging
 
 import pandas as pd
+
 
 from qstrader.asset.equity import Equity
 from qstrader.broker.simulated_broker import SimulatedBroker
@@ -20,6 +22,9 @@ from qstrader import settings
 DEFAULT_ACCOUNT_NAME = 'Backtest Simulated Broker Account'
 DEFAULT_PORTFOLIO_ID = '000001'
 DEFAULT_PORTFOLIO_NAME = 'Backtest Simulated Broker Portfolio'
+
+
+logger = logging.getLogger(__name__)
 
 
 class BacktestTradingSession(TradingSession):
@@ -377,7 +382,7 @@ class BacktestTradingSession(TradingSession):
             Whether to output the current portfolio holdings
         """
         if settings.PRINT_EVENTS:
-            print("Beginning backtest simulation...")
+            logger.info("Beginning backtest simulation...")
 
         stats = {'target_allocations': []}
 
@@ -385,7 +390,7 @@ class BacktestTradingSession(TradingSession):
             # Output the system event and timestamp
             dt = event.ts
             if settings.PRINT_EVENTS:
-                print("(%s) - %s" % (event.ts, event.event_type))
+                logger.info("(%s) - %s" % (event.ts, event.event_type))
 
             # Update the simulated broker
             self.broker.update(dt)
@@ -400,7 +405,7 @@ class BacktestTradingSession(TradingSession):
                 if dt >= self.burn_in_dt:
                     if self._is_rebalance_event(dt):
                         if settings.PRINT_EVENTS:
-                            print(
+                            logger.debug(
                                 "(%s) - trading logic "
                                 "and rebalance" % event.ts
                             )
@@ -408,7 +413,7 @@ class BacktestTradingSession(TradingSession):
             else:
                 if self._is_rebalance_event(dt):
                     if settings.PRINT_EVENTS:
-                        print(
+                        logger.debug(
                             "(%s) - trading logic "
                             "and rebalance" % event.ts
                         )
@@ -432,4 +437,4 @@ class BacktestTradingSession(TradingSession):
             self.output_holdings()
 
         if settings.PRINT_EVENTS:
-            print("Ending backtest simulation.")
+            logger.info("Ending backtest simulation.")

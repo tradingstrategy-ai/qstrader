@@ -33,12 +33,9 @@ class BacktestDataHandler(object):
         # TODO: Check for asset in Universe
         ask = np.NaN
         for ds in self.data_sources:
-            try:
-                ask = ds.get_ask(dt, asset_symbol)
-                if not np.isnan(ask):
-                    return ask
-            except Exception:
-                ask = np.NaN
+            ask = ds.get_ask(dt, asset_symbol)
+            if not np.isnan(ask):
+                return ask
         return ask
 
     def get_asset_latest_bid_ask_price(self, dt, asset_symbol):

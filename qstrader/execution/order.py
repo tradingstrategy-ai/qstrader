@@ -1,3 +1,4 @@
+import math
 import uuid
 
 import numpy as np
@@ -40,7 +41,8 @@ class Order(object):
         self.asset = asset
         self.quantity = quantity
         self.commission = commission
-        self.direction = np.copysign(1, self.quantity)
+        # np.copysign() dies on a big int value like 94062811366288605184
+        self.direction = math.copysign(1, self.quantity)
         self.order_id = self._set_or_generate_order_id(order_id)
 
     def _order_attribs_equal(self, other):

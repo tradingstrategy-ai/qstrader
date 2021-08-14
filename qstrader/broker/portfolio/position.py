@@ -1,3 +1,4 @@
+import math
 from math import floor
 
 import numpy as np
@@ -137,7 +138,7 @@ class Position(object):
         if self.net_quantity == 0:
             return 0
         else:
-            return np.copysign(1, self.net_quantity)
+            return math.copysign(1, self.net_quantity)
 
     @property
     def market_value(self):

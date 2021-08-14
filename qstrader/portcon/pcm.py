@@ -1,5 +1,10 @@
+import logging
+
 from qstrader import settings
 from qstrader.execution.order import Order
+
+
+logger = logging.getLogger(__name__)
 
 
 class PortfolioConstructionModel(object):
@@ -277,7 +282,7 @@ class PortfolioConstructionModel(object):
             full_zero_weights, optimised_weights
         )
         if settings.PRINT_EVENTS:
-            print(
+            logger.debug(
                 "(%s) - target weights: %s" % (dt, full_weights)
             )
 

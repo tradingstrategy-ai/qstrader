@@ -145,6 +145,7 @@ class DollarWeightedCashBufferedOrderSizer(OrderSizer):
         normalised_weights = self._normalise_weights(weights)
 
         target_portfolio = {}
+
         for asset, weight in sorted(normalised_weights.items()):
             pre_cost_dollar_weight = cash_buffered_total_equity * weight
 
@@ -156,22 +157,27 @@ class DollarWeightedCashBufferedOrderSizer(OrderSizer):
 
             # Calculate integral target asset quantity assuming broker costs
             after_cost_dollar_weight = pre_cost_dollar_weight - est_costs
-            asset_price = self.data_handler.get_asset_latest_ask_price(
-                dt, asset
-            )
 
-            if np.isnan(asset_price):
-                raise ValueError(
-                    'Asset price for "%s" at timestamp "%s" is Not-a-Number (NaN). '
-                    'This can occur if the chosen backtest start date is earlier '
-                    'than the first available price for a particular asset. Try '
-                    'modifying the backtest start date and re-running.' % (asset, dt)
+            asset_quantity = 0
+
+            if weight > 0:
+                asset_price = self.data_handler.get_asset_latest_ask_price(
+                    dt, asset
                 )
 
-            # TODO: Long only for the time being.
-            asset_quantity = int(
-                np.floor(after_cost_dollar_weight / asset_price)
-            )
+                if after_cost_dollar_weight > 0:
+                    if np.isnan(asset_price):
+                        raise ValueError(
+                            'Asset price for "%s" at timestamp "%s" is Not-a-Number (NaN). '
+                            'This can occur if the chosen backtest start date is earlier '
+                            'than the first available price for a particular asset. Try '
+                            'modifying the backtest start date and re-running.' % (asset, dt)
+                        )
+
+                    # TODO: Long only for the time being.
+                    asset_quantity = int(
+                        np.floor(after_cost_dollar_weight / asset_price)
+                    )
 
             # Add to the target portfolio
             target_portfolio[asset] = {"quantity": asset_quantity}

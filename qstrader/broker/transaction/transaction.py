@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 
 
@@ -33,7 +35,8 @@ class Transaction(object):
     ):
         self.asset = asset
         self.quantity = quantity
-        self.direction = np.copysign(1, self.quantity)
+        # np.copysign() dies on a big int value like 94062811366288605184
+        self.direction = math.copysign(1, self.quantity)
         self.dt = dt
         self.price = price
         self.order_id = order_id
