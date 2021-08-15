@@ -242,7 +242,8 @@ class Portfolio(object):
                 dt=txn.dt, type='asset_transaction',
                 description=description,
                 debit=round(txn_total_cost, 2), credit=0.0,
-                balance=round(self.cash, 2)
+                balance=round(self.cash, 2),
+                txn=txn,
             )
             self.logger.info(
                 '(%s) Asset "%s" transacted LONG in portfolio "%s" '
@@ -257,7 +258,8 @@ class Portfolio(object):
                 dt=txn.dt, type='asset_transaction',
                 description=description,
                 debit=0.0, credit=-1.0 * round(txn_total_cost, 2),
-                balance=round(self.cash, 2)
+                balance=round(self.cash, 2),
+                txn=txn,
             )
             self.logger.info(
                 '(%s) Asset "%s" transacted SHORT in portfolio "%s" '

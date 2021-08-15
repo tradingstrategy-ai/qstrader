@@ -1,3 +1,8 @@
+from typing import Optional
+
+from qstrader.broker.transaction.transaction import Transaction
+
+
 class PortfolioEvent(object):
     """
     Stores an individual instance of a portfolio event used to create
@@ -17,6 +22,8 @@ class PortfolioEvent(object):
         A credit to the cash balance of the portfolio.
     balance : `float`
         The current cash balance of the portfolio.
+    transaction: 'Transaction'
+        The underlying broker transaction associated with this change. Only relevant for buys and sells.
     """
 
     def __init__(
@@ -26,7 +33,8 @@ class PortfolioEvent(object):
         description,
         debit,
         credit,
-        balance
+        balance,
+        txn: Optional[Transaction] = None,
     ):
         self.dt = dt
         self.type = type
@@ -34,6 +42,7 @@ class PortfolioEvent(object):
         self.debit = debit
         self.credit = credit
         self.balance = balance
+        self.txn = txn
 
     def __eq__(self, other):
         if self.dt != other.dt:
