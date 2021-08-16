@@ -1,5 +1,6 @@
 import os
 import logging
+from typing import Optional, Callable
 
 import pandas as pd
 
@@ -67,6 +68,8 @@ class BacktestTradingSession(TradingSession):
     burn_in_dt : `pd.Timestamp`, optional
         The optional date provided to begin tracking strategy statistics,
         which is used for strategies requiring a period of data 'burn in'
+    simulation_engine:  optional
+        Allow to override the simulation engine - which days trade
     """
 
     def __init__(
@@ -86,6 +89,7 @@ class BacktestTradingSession(TradingSession):
         fee_model=ZeroFeeModel(),
         burn_in_dt=None,
         data_handler=None,
+        simulation_engine=None,
         **kwargs
     ):
         self.start_dt = start_dt
@@ -106,7 +110,11 @@ class BacktestTradingSession(TradingSession):
         self.exchange = self._create_exchange()
         self.data_handler = self._create_data_handler(data_handler)
         self.broker = self._create_broker()
-        self.sim_engine = self._create_simulation_engine()
+
+        if simulation_engine:
+            self.sim_engine = simulation_engine
+        else:
+            self.sim_engine = self._create_simulation_engine()
 
         if rebalance == 'weekly':
             if 'rebalance_weekday' in kwargs:
@@ -123,6 +131,10 @@ class BacktestTradingSession(TradingSession):
         self.qts = self._create_quant_trading_system(**kwargs)
         self.equity_curve = []
         self.target_allocations = []
+
+        # Expose to unit testing
+        self.events_simulated = 0
+        self.rebalances = 0
 
     def _is_rebalance_event(self, dt):
         """
@@ -370,7 +382,11 @@ class BacktestTradingSession(TradingSession):
             alloc_df = alloc_df[self.burn_in_dt:]
         return alloc_df
 
-    def run(self, results=False):
+    def fetch_simulation_events(self) -> list:
+        """Allow to make a progress estimate."""
+        return list(self.sim_engine)
+
+    def run(self, results=False, progress_callback: Optional[Callable]=None):
         """
         Execute the simulation engine by iterating over all
         simulation events, rebalancing the quant trading
@@ -380,13 +396,23 @@ class BacktestTradingSession(TradingSession):
         ----------
         results : `Boolean`, optional
             Whether to output the current portfolio holdings
+        progress_callback: Function
         """
         if settings.PRINT_EVENTS:
             logger.info("Beginning backtest simulation...")
 
         stats = {'target_allocations': []}
 
-        for event in self.sim_engine:
+        all_events = list(self.sim_engine)
+        assert len(all_events) > 0
+
+        for idx, event in enumerate(all_events):
+
+            self.events_simulated += 1
+
+            if progress_callback:
+                progress_callback(idx, event)
+
             # Output the system event and timestamp
             dt = event.ts
             if settings.PRINT_EVENTS:
@@ -404,6 +430,7 @@ class BacktestTradingSession(TradingSession):
             if self.burn_in_dt is not None:
                 if dt >= self.burn_in_dt:
                     if self._is_rebalance_event(dt):
+                        self.rebalances += 1
                         if settings.PRINT_EVENTS:
                             logger.debug(
                                 "(%s) - trading logic "
@@ -412,6 +439,7 @@ class BacktestTradingSession(TradingSession):
                         self.qts(dt, stats=stats)
             else:
                 if self._is_rebalance_event(dt):
+                    self.rebalances += 1
                     if settings.PRINT_EVENTS:
                         logger.debug(
                             "(%s) - trading logic "
