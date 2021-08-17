@@ -1,4 +1,5 @@
 import queue
+import logging
 
 import numpy as np
 
@@ -8,6 +9,9 @@ from qstrader.broker.fee_model.fee_model import FeeModel
 from qstrader.broker.portfolio.portfolio import Portfolio
 from qstrader.broker.transaction.transaction import Transaction
 from qstrader.broker.fee_model.zero_fee_model import ZeroFeeModel
+
+
+logger = logging.getLogger(__name__)
 
 
 class SimulatedBroker(Broker):
@@ -471,6 +475,10 @@ class SimulatedBroker(Broker):
             )
         return self.portfolios[portfolio_id].cash
 
+    def get_total_portfolio_cash_balances(self) -> float:
+        cash_balances = [p.cash for p in self.portfolios.values()]
+        return sum(cash_balances)
+
     def get_portfolio_total_market_value(self, portfolio_id):
         """
         Returns the current total market value of a Portfolio
@@ -589,7 +597,7 @@ class SimulatedBroker(Broker):
         scaled_quantity = order.quantity
         if est_total_cost > total_cash:
             if settings.PRINT_EVENTS:
-                print(
+                logger.warning(
                     "WARNING: Estimated transaction size of %0.2f exceeds "
                     "available cash of %0.2f. Transaction will still occur "
                     "with a negative cash balance." % (est_total_cost, total_cash)
@@ -602,7 +610,7 @@ class SimulatedBroker(Broker):
         )
         self.portfolios[portfolio_id].transact_asset(txn)
         if settings.PRINT_EVENTS:
-            print(
+            logger.info(
                 "(%s) - executed order: %s, qty: %s, price: %0.2f, "
                 "consideration: %0.2f, commission: %0.2f, total: %0.2f" % (
                     self.current_dt, order.asset, scaled_quantity, price,
@@ -641,7 +649,7 @@ class SimulatedBroker(Broker):
             )
         self.open_orders[portfolio_id].put(order)
         if settings.PRINT_EVENTS:
-            print(
+            logger.info(
                 "(%s) - submitted order: %s, qty: %s" % (
                     self.current_dt, order.asset, order.quantity
                 )

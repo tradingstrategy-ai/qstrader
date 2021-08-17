@@ -382,7 +382,7 @@ class BacktestTradingSession(TradingSession):
             alloc_df = alloc_df[self.burn_in_dt:]
         return alloc_df
 
-    def fetch_simulation_events(self) -> list:
+    def prefetch_simulation_events(self) -> list:
         """Allow to make a progress estimate."""
         return list(self.sim_engine)
 
@@ -411,7 +411,7 @@ class BacktestTradingSession(TradingSession):
             self.events_simulated += 1
 
             if progress_callback:
-                progress_callback(idx, event)
+                progress_callback(idx, event.ts, event)
 
             # Output the system event and timestamp
             dt = event.ts

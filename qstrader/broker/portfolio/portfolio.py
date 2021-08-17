@@ -9,6 +9,9 @@ from qstrader.broker.portfolio.portfolio_event import PortfolioEvent
 from qstrader.broker.portfolio.position_handler import PositionHandler
 
 
+logger = logging.getLogger(__name__)
+
+
 class Portfolio(object):
     """
     Represents a portfolio of assets. It contains a cash
@@ -53,9 +56,7 @@ class Portfolio(object):
         self.pos_handler = PositionHandler()
         self.history = []
 
-        self.logger = logging.getLogger('Portfolio')
-        self.logger.setLevel(logging.DEBUG)
-        self.logger.info(
+        logger.info(
             '(%s) Portfolio "%s" instance initialised' % (
                 self.current_dt.strftime(settings.LOGGING["DATE_FORMAT"]),
                 self.portfolio_id
@@ -78,7 +79,7 @@ class Portfolio(object):
                 )
             )
 
-        self.logger.info(
+        logger.info(
             '(%s) Funds subscribed to portfolio "%s" '
             '- Credit: %0.2f, Balance: %0.2f' % (
                 self.current_dt.strftime(settings.LOGGING["DATE_FORMAT"]),
@@ -147,7 +148,7 @@ class Portfolio(object):
             PortfolioEvent.create_subscription(self.current_dt, amount, self.cash)
         )
 
-        self.logger.info(
+        logger.info(
             '(%s) Funds subscribed to portfolio "%s" '
             '- Credit: %0.2f, Balance: %0.2f' % (
                 self.current_dt.strftime(settings.LOGGING["DATE_FORMAT"]),
@@ -192,7 +193,7 @@ class Portfolio(object):
             PortfolioEvent.create_withdrawal(self.current_dt, amount, self.cash)
         )
 
-        self.logger.info(
+        logger.info(
             '(%s) Funds withdrawn from portfolio "%s" '
             '- Debit: %0.2f, Balance: %0.2f' % (
                 self.current_dt.strftime(settings.LOGGING["DATE_FORMAT"]),
@@ -245,7 +246,7 @@ class Portfolio(object):
                 balance=round(self.cash, 2),
                 txn=txn,
             )
-            self.logger.info(
+            logger.info(
                 '(%s) Asset "%s" transacted LONG in portfolio "%s" '
                 '- Debit: %0.2f, Balance: %0.2f' % (
                     txn.dt.strftime(settings.LOGGING["DATE_FORMAT"]),
@@ -261,7 +262,7 @@ class Portfolio(object):
                 balance=round(self.cash, 2),
                 txn=txn,
             )
-            self.logger.info(
+            logger.info(
                 '(%s) Asset "%s" transacted SHORT in portfolio "%s" '
                 '- Credit: %0.2f, Balance: %0.2f' % (
                     txn.dt.strftime(settings.LOGGING["DATE_FORMAT"]),

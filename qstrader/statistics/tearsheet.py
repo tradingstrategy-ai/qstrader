@@ -1,3 +1,5 @@
+import logging
+
 from matplotlib.ticker import FuncFormatter
 from matplotlib import cm
 import matplotlib.pyplot as plt
@@ -9,6 +11,9 @@ import seaborn as sns
 import qstrader.statistics.performance as perf
 from qstrader.statistics.statistics import Statistics
 from qstrader import settings
+
+
+logger = logging.getLogger(__name__)
 
 
 class TearsheetStatistics(Statistics):
@@ -266,7 +271,7 @@ class TearsheetStatistics(Statistics):
         Plot the Tearsheet
         """
         if settings.PRINT_EVENTS:
-            print('Plotting the tearsheet...')
+            logger.debug('Plotting the tearsheet...')
         rc = {
             'lines.linewidth': 1.0,
             'axes.facecolor': '0.995',
@@ -314,4 +319,5 @@ class TearsheetStatistics(Statistics):
         # self._plot_txt_time(stats, ax=ax_txt_time)
 
         # Plot the figure
+        plt.gcf().set_dpi(600)  # Retina DPI
         plt.show()
