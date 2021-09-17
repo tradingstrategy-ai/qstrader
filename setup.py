@@ -4,9 +4,9 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name="tradingstrategy-qstrader",
+    name="trading-strategy-qstrader",
     version="0.3",
-    description="QSTrader backtesting simulation engine",
+    description="QSTrader backtesting simulation engine (forked)",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/tradingstrategy-ai/qstrader",
