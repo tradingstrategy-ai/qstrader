@@ -4,14 +4,14 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name="qstrader",
-    version="0.2.3-mikko",
+    name="tradingstrategy-qstrader",
+    version="0.3",
     description="QSTrader backtesting simulation engine",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/mhallsmoore/qstrader",
-    author="Michael Halls-Moore",
-    author_email="support@quantstart.com",
+    url="https://github.com/tradingstrategy-ai/qstrader",
+    author="Mikko Ohtamaa",
+    author_email="mikko@capitalgram.com",
     license="MIT",
     classifiers=[
         "License :: OSI Approved :: MIT License",
