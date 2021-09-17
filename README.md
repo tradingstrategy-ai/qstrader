@@ -2,7 +2,7 @@
 
 This is patched and bug fixed version for [QSTrader library](https://github.com/mhallsmoore/qstrader). This package is a dependency for [tradingstrategy](https://github.com/tradingstrategy-ai/client) package.
 
-The QSTrader project was forked and the fork released on a different PyPi package name `tradingstrategy-qstrader` because the original project by Michael Halls-Moore was unmaintained and unusable as a PyPi package dependency.
+The QSTrader project was forked and the fork released on a different PyPi package name `trading-strategy-qstrader` because the original project by Michael Halls-Moore was unmaintained and unusable as a PyPi package dependency.
 
 [Show package information on PyPi](https://pypi.org/project/trading-strategy-qstrader/).
 
