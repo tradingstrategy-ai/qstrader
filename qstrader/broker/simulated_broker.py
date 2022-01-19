@@ -1,5 +1,7 @@
 import queue
 import logging
+from collections import defaultdict
+from typing import Dict
 
 import numpy as np
 
@@ -71,8 +73,16 @@ class SimulatedBroker(Broker):
         self.slippage_model = None  # TODO: Implement
         self.market_impact_model = None  # TODO: Implement
 
+        # currency name -> blaance
+        self.cash_balances: Dict[str, float]
         self.cash_balances = self._set_cash_balances()
+
+        # portfolio id -> Portfolio
+        self.portfolios: Dict[str, Portfolio]
         self.portfolios = self._set_initial_portfolios()
+
+        # portfolio id -> Queue of Orders
+        self.open_orders: Dict[str, queue.Queue]
         self.open_orders = self._set_initial_open_orders()
 
         if settings.PRINT_EVENTS:
@@ -152,7 +162,7 @@ class SimulatedBroker(Broker):
                 "Broker entity." % fee_model.__class__
             )
 
-    def _set_cash_balances(self):
+    def _set_cash_balances(self) -> Dict[str, float]:
         """
         Set the appropriate cash balances in the various
         supported currencies, depending upon the availability
@@ -172,7 +182,7 @@ class SimulatedBroker(Broker):
             cash_dict[self.base_currency] = self.initial_funds
         return cash_dict
 
-    def _set_initial_portfolios(self):
+    def _set_initial_portfolios(self) -> Dict[str, Portfolio]:
         """
         Set the appropriate initial portfolios dictionary.
 
@@ -183,7 +193,7 @@ class SimulatedBroker(Broker):
         """
         return {}
 
-    def _set_initial_open_orders(self):
+    def _set_initial_open_orders(self) -> Dict[str, queue.Queue]:
         """
         Set the appropriate initial open orders dictionary.
 
@@ -548,7 +558,7 @@ class SimulatedBroker(Broker):
             )
         return self.portfolios[portfolio_id].portfolio_to_dict()
 
-    def _execute_order(self, dt, portfolio_id, order):
+    def _execute_order(self, dt, portfolio_id, order, debug_details: Dict):
         """
         For a given portfolio ID string, create a Transaction instance from
         the provided Order and ensure the Portfolio is appropriately updated
@@ -584,6 +594,7 @@ class SimulatedBroker(Broker):
             price = bid_ask[1]
         else:
             price = bid_ask[0]
+
         consideration = round(price * order.quantity)
         total_commission = self.fee_model.calc_total_cost(
             order.asset, order.quantity, consideration, self
@@ -606,7 +617,8 @@ class SimulatedBroker(Broker):
         # Create a transaction entity and update the portfolio
         txn = Transaction(
             order.asset, scaled_quantity, self.current_dt,
-            price, order.order_id, commission=total_commission
+            price, order.order_id, commission=total_commission,
+            debug_details=debug_details,
         )
         self.portfolios[portfolio_id].transact_asset(txn)
         if settings.PRINT_EVENTS:
@@ -619,7 +631,7 @@ class SimulatedBroker(Broker):
                 )
             )
 
-    def submit_order(self, portfolio_id, order):
+    def submit_order(self, portfolio_id, order, debug_details):
         """
         Execute an Order instance against the sub-portfolio
         with ID 'portfolio_id'. For the SimulatedBroker class
@@ -655,7 +667,7 @@ class SimulatedBroker(Broker):
                 )
             )
 
-    def update(self, dt):
+    def update(self, dt, debug_details: Dict):
         """
         Updates the current SimulatedBroker timestamp.
 
@@ -687,4 +699,26 @@ class SimulatedBroker(Broker):
 
             sorted_orders = sorted(orders, key=lambda x: x[1].direction)
             for portfolio, order in sorted_orders:
-                self._execute_order(dt, portfolio, order)
+                self._execute_order(dt, portfolio, order, debug_details)
+
+    def to_dict(self) -> dict:
+        """Export the current broker state.
+
+        Semi human-readable info of the current broker state.
+
+        Most useful for debugging.
+        """
+
+        open_orders_per_portfolio = defaultdict(list)
+        for id, queue in self.open_orders.items():
+            # https://stackoverflow.com/a/47887265/315168
+            for order in list(queue.queue):
+                open_orders_per_portfolio[id].append(order.to_dict())
+
+        export = {
+            # Dict of currencies and their balances
+            "cash_balances": self.cash_balances.copy(),
+            "portfolios": {id: portfolio.to_dict() for id, portfolio in self.portfolios.items()},
+            "open_orders": open_orders_per_portfolio,
+        }
+        return export

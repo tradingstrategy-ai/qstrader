@@ -1,3 +1,6 @@
+from typing import Dict
+
+
 class ExecutionHandler(object):
     """
     Handles the execution of a list of Orders output by the
@@ -57,7 +60,7 @@ class ExecutionHandler(object):
         """
         return self.execution_algo(dt, rebalance_orders)
 
-    def __call__(self, dt, rebalance_orders):
+    def __call__(self, dt, rebalance_orders, debug_details: Dict):
         """
         Take the list of rebalanced Orders generated from the
         portfolio construction process and execute them at the
@@ -82,4 +85,4 @@ class ExecutionHandler(object):
         # individual order items to the Broker instance
         if self.submit_orders:
             for order in final_orders:
-                self.broker.submit_order(self.broker_portfolio_id, order)
+                self.broker.submit_order(self.broker_portfolio_id, order, debug_details)

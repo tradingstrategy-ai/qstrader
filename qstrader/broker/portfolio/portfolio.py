@@ -272,6 +272,7 @@ class Portfolio(object):
             )
         self.history.append(pe)
 
+    # TODO: Rename as there is now to_dict()
     def portfolio_to_dict(self):
         """
         Output the portfolio holdings information as a dictionary
@@ -335,3 +336,14 @@ class Portfolio(object):
                 "date", "type", "description", "debit", "credit", "balance"
             ]
         ).set_index(keys=["date"])
+
+    def to_dict(self) -> dict:
+        """Export the current state of the portfolio as a dict."""
+        export = {
+            "name": self.name,
+            "currency": self.currency,
+            "cash": self.cash,
+            "assets": self.portfolio_to_dict(),
+
+        }
+        return export

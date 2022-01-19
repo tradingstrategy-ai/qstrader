@@ -1,6 +1,6 @@
 import os
 import logging
-from typing import Optional, Callable
+from typing import Optional, Callable, List
 
 import pandas as pd
 
@@ -386,7 +386,7 @@ class BacktestTradingSession(TradingSession):
         """Allow to make a progress estimate."""
         return list(self.sim_engine)
 
-    def run(self, results=False, progress_callback: Optional[Callable]=None):
+    def run(self, results=False, progress_callback: Optional[Callable]=None, logging=False) -> List[dict]:
         """
         Execute the simulation engine by iterating over all
         simulation events, rebalancing the quant trading
@@ -397,11 +397,18 @@ class BacktestTradingSession(TradingSession):
         results : `Boolean`, optional
             Whether to output the current portfolio holdings
         progress_callback: Function
+
+        :return: Event details stream
         """
+
+        debug_events = []
+
         if settings.PRINT_EVENTS:
             logger.info("Beginning backtest simulation...")
 
         stats = {'target_allocations': []}
+
+        logging = logging or settings.PRINT_EVENTS
 
         all_events = list(self.sim_engine)
         assert len(all_events) > 0
@@ -410,20 +417,32 @@ class BacktestTradingSession(TradingSession):
 
             self.events_simulated += 1
 
+            # Pass debug details around to make it easier to
+            # diagnose misbehaving algorithms
+            event_debug_details = {
+                "event_index": self.events_simulated,
+                "timestamp": event.ts,
+                "broker": self.broker.to_dict()
+            }
+
+            if event.event_type == "pre_market":
+                # At the start of the each day, dump our portfolio state
+                debug_events.append(event_debug_details)
+
             if progress_callback:
                 progress_callback(idx, event.ts, event)
 
             # Output the system event and timestamp
             dt = event.ts
-            if settings.PRINT_EVENTS:
+            if logging:
                 logger.info("(%s) - %s" % (event.ts, event.event_type))
 
             # Update the simulated broker
-            self.broker.update(dt)
+            self.broker.update(dt, event_debug_details)
 
             # Update any signals on a daily basis
             if self.signals is not None and event.event_type == "market_close":
-                self.signals.update(dt)
+                self.signals.update(dt, debug_details=event_debug_details)
 
             # If we have hit a rebalance time then carry
             # out a full run of the quant trading system
@@ -431,21 +450,21 @@ class BacktestTradingSession(TradingSession):
                 if dt >= self.burn_in_dt:
                     if self._is_rebalance_event(dt):
                         self.rebalances += 1
-                        if settings.PRINT_EVENTS:
+                        if logging:
                             logger.debug(
                                 "(%s) - trading logic "
                                 "and rebalance" % event.ts
                             )
-                        self.qts(dt, stats=stats)
+                        self.qts(dt, stats=stats, debug_details=event_debug_details)
             else:
                 if self._is_rebalance_event(dt):
                     self.rebalances += 1
-                    if settings.PRINT_EVENTS:
+                    if logging:
                         logger.debug(
                             "(%s) - trading logic "
                             "and rebalance" % event.ts
                         )
-                    self.qts(dt, stats=stats)
+                    self.qts(dt, stats=stats, debug_details=event_debug_details)
 
             # Out of market hours we want a daily
             # performance update, but only if we
@@ -464,5 +483,8 @@ class BacktestTradingSession(TradingSession):
         if results:
             self.output_holdings()
 
-        if settings.PRINT_EVENTS:
+        if logging:
             logger.info("Ending backtest simulation.")
+
+        return debug_events
+

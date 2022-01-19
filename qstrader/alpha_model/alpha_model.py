@@ -1,4 +1,5 @@
 from abc import ABCMeta, abstractmethod
+from typing import Dict, Optional
 
 
 class AlphaModel(object):
@@ -19,7 +20,7 @@ class AlphaModel(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def __call__(self, dt):
+    def __call__(self, dt, debug_details: Optional[Dict] = None):
         raise NotImplementedError(
             "Should implement __call__()"
         )

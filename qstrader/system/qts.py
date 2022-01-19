@@ -151,7 +151,7 @@ class QuantTradingSystem(object):
             data_handler=self.data_handler
         )
 
-    def __call__(self, dt, stats=None):
+    def __call__(self, dt, stats=None, debug_details=None):
         """
         Construct the portfolio and (optionally) execute the orders
         with the broker.
@@ -172,4 +172,4 @@ class QuantTradingSystem(object):
         rebalance_orders = self.portfolio_construction_model(dt, stats=stats)
 
         # Execute the orders
-        self.execution_handler(dt, rebalance_orders)
+        self.execution_handler(dt, rebalance_orders, debug_details=debug_details)

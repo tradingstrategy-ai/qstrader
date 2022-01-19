@@ -1,4 +1,5 @@
 import math
+from typing import Optional, Dict
 
 import numpy as np
 
@@ -31,7 +32,8 @@ class Transaction(object):
         dt,
         price,
         order_id,
-        commission=0.0
+        commission=0.0,
+        debug_details: Optional[Dict]=None,
     ):
         self.asset = asset
         self.quantity = quantity
@@ -41,6 +43,7 @@ class Transaction(object):
         self.price = price
         self.order_id = order_id
         self.commission = commission
+        self.debug_details = debug_details
 
     def __repr__(self):
         """

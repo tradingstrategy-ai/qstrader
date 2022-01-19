@@ -1,4 +1,5 @@
 import logging
+from typing import Optional, Dict
 
 from qstrader import settings
 from qstrader.execution.order import Order
@@ -160,7 +161,8 @@ class PortfolioConstructionModel(object):
         self,
         dt,
         target_portfolio,
-        current_portfolio
+        current_portfolio,
+        debug_details: Optional[Dict] = None,
     ):
         """
         Creates an incremental list of rebalancing Orders from the provided
@@ -208,7 +210,7 @@ class PortfolioConstructionModel(object):
         # Create the rebalancing Order list from the order portfolio
         # only where quantities are non-zero
         rebalance_orders = [
-            Order(dt, asset, rebalance_portfolio[asset]["quantity"])
+            Order(dt, asset, rebalance_portfolio[asset]["quantity"], debug_details=debug_details)
             for asset, asset_dict in sorted(
                 rebalance_portfolio.items(), key=lambda x: x[0]
             )
@@ -236,7 +238,7 @@ class PortfolioConstructionModel(object):
         assets = self.universe.get_assets(dt)
         return {asset: 0.0 for asset in assets}
 
-    def __call__(self, dt, stats=None):
+    def __call__(self, dt, stats=None, debug_details: Optional[Dict] = None):
         """
         Execute the portfolio construction process at a particular
         provided date-time.
@@ -262,7 +264,7 @@ class PortfolioConstructionModel(object):
         # If an AlphaModel is provided use its suggestions, otherwise
         # create a null weight vector (zero for all Assets).
         if self.alpha_model:
-            weights = self.alpha_model(dt)
+            weights = self.alpha_model(dt, debug_details)
         else:
             weights = self._create_zero_target_weights_vector(dt)
 
@@ -300,7 +302,7 @@ class PortfolioConstructionModel(object):
 
         # Create rebalance trade Orders
         rebalance_orders = self._generate_rebalance_orders(
-            dt, target_portfolio, current_portfolio
+            dt, target_portfolio, current_portfolio, debug_details
         )
         # TODO: Implement cost model
 

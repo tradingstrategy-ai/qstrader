@@ -1,5 +1,6 @@
 import math
 import uuid
+from typing import Optional
 
 import numpy as np
 
@@ -34,7 +35,8 @@ class Order(object):
         asset,
         quantity,
         commission=0.0,
-        order_id=None
+        order_id=None,
+        debug_details: Optional[dict] = None,
     ):
         self.created_dt = dt
         self.cur_dt = dt
@@ -44,6 +46,7 @@ class Order(object):
         # np.copysign() dies on a big int value like 94062811366288605184
         self.direction = math.copysign(1, self.quantity)
         self.order_id = self._set_or_generate_order_id(order_id)
+        self.debug_details = debug_details
 
     def _order_attribs_equal(self, other):
         """
@@ -111,3 +114,6 @@ class Order(object):
             return uuid.uuid4().hex
         else:
             return order_id
+
+    def to_dict(self) -> dict:
+        return vars(self).copy()
