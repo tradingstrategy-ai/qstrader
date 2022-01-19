@@ -8,10 +8,10 @@ The QSTrader project was forked and the fork released on a different PyPi packag
 
 # Information
 
-- [Visit Trading Strategy](https://tradingstrategy.ai).
+- [Visit Trading Strategy](https://tradingstrategy.ai)
 - [View Trading Strategy documentation](https://tradingstrategy.ai/docs)
-- [View package information on PyPi](https://pypi.org/project/trading-strategy-qstrader/).
-- [See the original QSTrader repository on Github](https://github.com/mhallsmoore/qstrader).
+- [View package information on PyPi](https://pypi.org/project/trading-strategy-qstrader/)
+- [See the original QSTrader repository on Github](https://github.com/mhallsmoore/qstrader)
 
 # Compatibility
 
