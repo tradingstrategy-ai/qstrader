@@ -1,6 +1,10 @@
+import logging
 import numpy as np
 
 from qstrader.portcon.order_sizer.order_sizer import OrderSizer
+
+
+logger = logging.getLogger(__name__)
 
 
 class DollarWeightedCashBufferedOrderSizer(OrderSizer):
@@ -134,6 +138,8 @@ class DollarWeightedCashBufferedOrderSizer(OrderSizer):
             1.0 - self.cash_buffer_percentage
         )
 
+        logger.info(f"Calculating dollar weights for the new portfolio. Total equity {total_equity:,.2f} USD, cash buffered total equity {cash_buffered_total_equity:,.2f} USD")
+
         # Pre-cost dollar weight
         N = len(weights)
         if N == 0:
@@ -145,6 +151,8 @@ class DollarWeightedCashBufferedOrderSizer(OrderSizer):
         normalised_weights = self._normalise_weights(weights)
 
         target_portfolio = {}
+
+        total_spend = 0
 
         for asset, weight in sorted(normalised_weights.items()):
             pre_cost_dollar_weight = cash_buffered_total_equity * weight
@@ -162,7 +170,8 @@ class DollarWeightedCashBufferedOrderSizer(OrderSizer):
 
             if weight > 0:
                 asset_price = self.data_handler.get_asset_latest_ask_price(
-                    dt, asset
+                    dt, asset,
+                    complain=True,
                 )
 
                 if after_cost_dollar_weight > 0:
@@ -179,7 +188,10 @@ class DollarWeightedCashBufferedOrderSizer(OrderSizer):
                         np.floor(after_cost_dollar_weight / asset_price)
                     )
 
-            # Add to the target portfolio
-            target_portfolio[asset] = {"quantity": asset_quantity}
+                # Add to the target portfolio
+                target_portfolio[asset] = {"quantity": asset_quantity}
+                total_spend += (asset_quantity * asset_price) + est_costs
+
+        logger.info(f"Total new portfolio cost {total_spend:,.2f}")
 
         return target_portfolio

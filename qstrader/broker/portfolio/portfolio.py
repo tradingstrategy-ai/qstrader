@@ -202,7 +202,7 @@ class Portfolio(object):
             )
         )
 
-    def transact_asset(self, txn):
+    def transact_asset(self, txn, allow_negative_balance=False):
         """
         Adjusts positions to account for a transaction.
         """
@@ -218,15 +218,16 @@ class Portfolio(object):
         txn_total_cost = txn_share_cost + txn.commission
 
         if txn_total_cost > self.cash:
-            if settings.PRINT_EVENTS:
-                print(
-                    'WARNING: Not enough cash in the portfolio to '
-                    'carry out transaction. Transaction cost of %s '
-                    'exceeds remaining cash of %s. Transaction '
-                    'will proceed with a negative cash balance.' % (
-                        txn_total_cost, self.cash
-                    )
+            error_msg = (
+                'WARNING: Not enough cash in the portfolio to '
+                'carry out transaction. Transaction cost of %s '
+                'exceeds remaining cash of %s. Transaction '
+                'will proceed with a negative cash balance.' % (
+                    txn_total_cost, self.cash
                 )
+            )
+            if not allow_negative_balance:
+                raise RuntimeError(error_msg)
 
         self.pos_handler.transact_position(txn)
 

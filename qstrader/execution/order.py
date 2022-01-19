@@ -48,6 +48,13 @@ class Order(object):
         self.order_id = self._set_or_generate_order_id(order_id)
         self.debug_details = debug_details
 
+    def get_order_direction(self) -> str:
+        """Describe if this is a buy or a sell order."""
+        if self.direction < 0:
+            return "sell"
+        else:
+            return "buy"
+
     def _order_attribs_equal(self, other):
         """
         Asserts whether all attributes of the Order are equal

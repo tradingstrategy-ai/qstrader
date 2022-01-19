@@ -1,7 +1,7 @@
 import queue
 import logging
 from collections import defaultdict
-from typing import Dict
+from typing import Dict, Optional
 
 import numpy as np
 
@@ -582,9 +582,7 @@ class SimulatedBroker(Broker):
                 order.asset, order.order_id
             )
         )
-        bid_ask = self.data_handler.get_asset_latest_bid_ask_price(
-            dt, order.asset
-        )
+        bid_ask = self.data_handler.get_asset_latest_bid_ask_price(dt, order.asset, complain=True)
         if bid_ask == (np.NaN, np.NaN):
             raise ValueError(price_err_msg)
 
@@ -594,6 +592,8 @@ class SimulatedBroker(Broker):
             price = bid_ask[1]
         else:
             price = bid_ask[0]
+
+        assert price > 0
 
         consideration = round(price * order.quantity)
         total_commission = self.fee_model.calc_total_cost(
@@ -622,14 +622,17 @@ class SimulatedBroker(Broker):
         )
         self.portfolios[portfolio_id].transact_asset(txn)
         if settings.PRINT_EVENTS:
-            logger.info(
-                "(%s) - executed order: %s, qty: %s, price: %0.2f, "
-                "consideration: %0.2f, commission: %0.2f, total: %0.2f" % (
-                    self.current_dt, order.asset, scaled_quantity, price,
-                    consideration, total_commission,
-                    consideration + total_commission
-                )
-            )
+            cash_after = self.portfolios[portfolio_id].cash
+            logger.info("(%s) - executed %s order: %s, qty: %s, price: %0.8f, consideration: %0.2f, commission: %0.2f, total: %0.2f, cash after %0.2f",
+                self.current_dt,
+                order.get_order_direction(),
+                order.asset,
+                scaled_quantity,
+                price,
+                consideration,
+                total_commission,
+                consideration + total_commission,
+                cash_after)
 
     def submit_order(self, portfolio_id, order, debug_details):
         """
@@ -667,7 +670,7 @@ class SimulatedBroker(Broker):
                 )
             )
 
-    def update(self, dt, debug_details: Dict):
+    def update(self, dt, execute_orders=False, debug_details: Optional[Dict]=None):
         """
         Updates the current SimulatedBroker timestamp.
 
@@ -676,30 +679,36 @@ class SimulatedBroker(Broker):
         dt : `pd.Timestamp`
             The current timestamp to update the Broker to.
         """
+
+
         self.current_dt = dt
 
         # Update portfolio asset values
+        logger.info("(%s) repricing the assets", dt)
         for portfolio in self.portfolios:
             for asset in self.portfolios[portfolio].pos_handler.positions:
                 mid_price = self.data_handler.get_asset_latest_mid_price(
-                    dt, asset
+                    dt, asset, complain=True,
                 )
                 self.portfolios[portfolio].update_market_value_of_asset(
                     asset, mid_price, self.current_dt
                 )
 
         # Try to execute orders
-        if self.exchange.is_open_at_datetime(self.current_dt):
-            orders = []
-            for portfolio in self.portfolios:
-                while not self.open_orders[portfolio].empty():
-                    orders.append(
-                        (portfolio, self.open_orders[portfolio].get())
-                    )
+        if execute_orders:
+            logger.info("(%s) executing orders", dt)
+            # if self.exchange.is_open_at_datetime(self.current_dt):
+            if True: # Crypto is open 24/7
+                orders = []
+                for portfolio in self.portfolios:
+                    while not self.open_orders[portfolio].empty():
+                        orders.append(
+                            (portfolio, self.open_orders[portfolio].get())
+                        )
 
-            sorted_orders = sorted(orders, key=lambda x: x[1].direction)
-            for portfolio, order in sorted_orders:
-                self._execute_order(dt, portfolio, order, debug_details)
+                sorted_orders = sorted(orders, key=lambda x: x[1].direction)
+                for portfolio, order in sorted_orders:
+                    self._execute_order(dt, portfolio, order, debug_details)
 
     def to_dict(self) -> dict:
         """Export the current broker state.

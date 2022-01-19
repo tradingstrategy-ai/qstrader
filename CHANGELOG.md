@@ -1,3 +1,7 @@
+# 0.4.0
+
+* Reworked internals to be compatible with crypto trading. This version is unlikely to work with stock markets anymore and the development has diverged
+
 # 0.2.2
 
 * Added link to full documentation at [https://www.quantstart.com/qstrader/](https://www.quantstart.com/qstrader/)

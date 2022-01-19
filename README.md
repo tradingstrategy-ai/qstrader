@@ -4,11 +4,20 @@ This is patched and bug fixed version for [QSTrader library](https://github.com/
 
 The QSTrader project was forked and the fork released on a different PyPi package name `trading-strategy-qstrader` because the original project by Michael Halls-Moore was unmaintained and unusable as a PyPi package dependency.
 
-[Show package information on PyPi](https://pypi.org/project/trading-strategy-qstrader/).
+**Warning**: This package is currently under active development to become suitable for crypto trading. APIs are likely to break.
 
-[For more information see the original QSTrader Github](https://github.com/mhallsmoore/qstrader) and [Trading Strategy website](https://tradingstrategy.ai/).
+# Information
 
-## Release 
+- [Visit Trading Strategy](https://tradingstrategy.ai).
+- [View Trading Strategy documentation](https://tradingstrategy.ai/docs)
+- [View package information on PyPi](https://pypi.org/project/trading-strategy-qstrader/).
+- [See the original QSTrader repository on Github](https://github.com/mhallsmoore/qstrader).
+
+# Compatibility
+
+Since version 0.4 internals have been reworked to be compatible with crypto trading. This version is unlikely to work with stock markets anymore and the development has diverged
+
+# Release 
 
 How to release this package on PyPi.
 

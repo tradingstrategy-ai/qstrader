@@ -456,6 +456,7 @@ class BacktestTradingSession(TradingSession):
                                 "and rebalance" % event.ts
                             )
                         self.qts(dt, stats=stats, debug_details=event_debug_details)
+                        self.broker.update(dt, execute_orders=True, debug_details=event_debug_details)
             else:
                 if self._is_rebalance_event(dt):
                     self.rebalances += 1
@@ -465,6 +466,7 @@ class BacktestTradingSession(TradingSession):
                             "and rebalance" % event.ts
                         )
                     self.qts(dt, stats=stats, debug_details=event_debug_details)
+                    self.broker.update(dt, execute_orders=True, debug_details=event_debug_details)
 
             # Out of market hours we want a daily
             # performance update, but only if we
