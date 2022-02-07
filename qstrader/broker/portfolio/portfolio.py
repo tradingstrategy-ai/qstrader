@@ -342,6 +342,8 @@ class Portfolio(object):
         """Export the current state of the portfolio as a dict."""
         export = {
             "name": self.name,
+            "total_equity": self.total_equity,
+            "total_market_value": self.total_market_value,
             "currency": self.currency,
             "cash": self.cash,
             "assets": self.portfolio_to_dict(),

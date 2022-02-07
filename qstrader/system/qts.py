@@ -169,7 +169,7 @@ class QuantTradingSystem(object):
         `None`
         """
         # Construct the target portfolio
-        rebalance_orders = self.portfolio_construction_model(dt, stats=stats)
+        rebalance_orders = self.portfolio_construction_model(dt, stats=stats, debug_details=debug_details)
 
         # Execute the orders
         self.execution_handler(dt, rebalance_orders, debug_details=debug_details)
