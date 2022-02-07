@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="trading-strategy-qstrader",
-    version="0.4",
+    version="0.5",
     description="QSTrader backtesting simulation engine (forked)",
     long_description=long_description,
     long_description_content_type="text/markdown",

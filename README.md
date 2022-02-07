@@ -12,6 +12,8 @@ The QSTrader project was forked and the fork released on a different PyPi packag
 - [View Trading Strategy documentation](https://tradingstrategy.ai/docs)
 - [View package information on PyPi](https://pypi.org/project/trading-strategy-qstrader/)
 - [See the original QSTrader repository on Github](https://github.com/mhallsmoore/qstrader)
+- [Changelog](https://github.com/tradingstrategy-ai/qstrader/blob/master/CHANGELOG.md)
+- [Discord chat](https://tradingstrategy.ai/community#discord)
 
 # Compatibility
 
@@ -25,9 +27,12 @@ Update `setup.py` version.
 
 ```shell
 rm -rf dist
-python3 -m pip install --upgrade build    
+python3.9 -m venv venv
+source venv/bin/activate
+pip install -U pip
+pip install --upgrade build    
 python3 -m build
-python3 -m pip install --upgrade twine
+pip install --upgrade twine
 python3 -m twine upload dist/*
 ```
 

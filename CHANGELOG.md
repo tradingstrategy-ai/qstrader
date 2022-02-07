@@ -1,6 +1,6 @@
-# 0.4.0
+# 0.5.0
 
-* Reworked internals to be compatible with crypto trading. This version is unlikely to work with stock markets anymore and the development has diverged
+* Reworked internals to be compatible with crypto trading. This version is unlikely to work with stock markets anymore and the development has diverged.
 
 # 0.2.2
 
