@@ -6,6 +6,12 @@ The QSTrader project was forked and the fork released on a different PyPi packag
 
 **Warning**: This package is currently under active development to become suitable for crypto trading. APIs are likely to break.
 
+# Installation
+
+```shell
+poetry add trading-strategy-qstrader
+```
+
 # Information
 
 - [Visit Trading Strategy](https://tradingstrategy.ai)
